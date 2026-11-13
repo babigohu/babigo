@@ -1,0 +1,60 @@
+media:
+  input: images
+  output: /images
+
+content:
+  - name: posts
+    label: Magazin Cikkek
+    path: content/posts
+    type: collection
+    fields:
+      - name: title
+        label: Cikk címe
+        type: string
+        required: true
+      - name: tag
+        label: Kategória jelvény (pl. 👶 Pelenka útmutató)
+        type: string
+        default: "💡 Spórolási tipp"
+      - name: date
+        label: Dátum
+        type: date
+        required: true
+      - name: excerpt
+        label: Rövid kivonat (kártyán jelenik meg)
+        type: text
+        required: true
+      - name: body
+        label: Cikk teljes szövege
+        type: rich-text
+        required: true
+
+  - name: recipes
+    label: Receptek (1 kattintásos kosárral)
+    path: content/recipes
+    type: collection
+    fields:
+      - name: title
+        label: Recept neve
+        type: string
+        required: true
+      - name: tag
+        label: Étrend jelvény (pl. 🌿 Tej- és tojásmentes)
+        type: string
+        default: "🌿 Mentes recept"
+      - name: prepTime
+        label: Elkészítési idő (pl. 10 perc)
+        type: string
+        default: "15 perc"
+      - name: excerpt
+        label: Rövid leírás
+        type: text
+        required: true
+      - name: productIds
+        label: Kapcsolódó termék ID-k vesszővel (pl. 4, 8)
+        type: string
+        required: true
+      - name: body
+        label: Hozzávalók és elkészítés
+        type: rich-text
+        required: true
