@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- KERESŐROBOTOK TILTÁSA TESZTELÉS ALATT -->
+    <meta name="robots" content="noindex, nofollow">
+    
+    <title>Babigo – Baba-mama, mentes és játék árösszehasonlító</title>
+    <meta name="description" content="Hasonlítsd össze a pelenkák, tápszerek, allergénmentes ételek és gyerekjátékok árait egy helyen! Valós darabár-kalkulátor és kupon-számító szülőknek.">
+    <meta name="theme-color" content="#7BA475">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandGreen: '#7BA475',
+                        brandGreenDark: '#5E8558',
+                        brandPeach: '#F19066',
+                        brandPeachDark: '#D9764C',
+                        brandDark: '#2C3E50',
+                        brandBg: '#F8FAF8'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@400;500;600;700&display=swap');
+        body { font-family: 'Quicksand', sans-serif; background-color: #F8FAF8; }
+        .brand-title { font-family: 'Fredoka', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="text-brandDark antialiased pb-28">
+
+    <!-- RAGADÓS FEJLÉC & KERESŐ -->
+    <header class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 pt-3 pb-2.5 space-y-2.5">
+            <!-- Felső sor: Logó + Asztali kereső + Eszközök -->
+            <div class="flex items-center justify-between gap-4">
+                <a href="#" onclick="switchView('compare'); resetFilters(); return false;" class="flex items-center space-x-2 shrink-0">
+                    <div class="w-9 h-9 rounded-xl bg-brandGreen/15 flex items-center justify-center text-brandGreen">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="8" cy="20" r="1.5"/>
+                            <circle cx="18" cy="20" r="1.5"/>
+                            <path d="M2 3h2l2.4 11.2a2 2 0 0 0 2 1.6h9.2a2 2 0 0 0 1.9-1.5L21 7H6"/>
+                            <path d="M13 7V3c2.5 0 4.5 1.5 5 4"/>
+                        </svg>
+                    </div>
+                    <span class="brand-title text-2xl font-bold tracking-tight text-brandDark">Babi<span class="text-brandPeach">go</span></span>
+                </a>
+
+                <!-- Asztali keresőmező -->
+                <div class="relative hidden md:block flex-1 max-w-xl">
+                    <input id="search-input-desktop" type="text" placeholder="Keress pelenkára, tápszerre, LEGO Duplóra, mentes nasira..." class="w-full bg-gray-100/80 border border-transparent focus:border-brandGreen focus:bg-white rounded-2xl pl-10 pr-4 py-2 text-sm font-medium focus:outline-none transition">
+                    <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+
+                <!-- Jobb oldali akciógombok -->
+                <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="switchView('blog')" id="nav-blog-btn" class="flex items-center space-x-1 bg-gray-100 hover:bg-gray-200 text-brandDark font-bold text-xs px-3 py-2 rounded-full transition">
+                        <span>📖</span>
+                        <span class="hidden sm:inline">Magazin & Receptek</span>
+                        <span class="sm:hidden">Blog</span>
+                    </button>
+
+                    <button onclick="openModal('wishlist-modal')" class="relative flex items-center space-x-1 bg-brandGreen/15 hover:bg-brandGreen/25 text-brandGreenDark font-bold text-xs px-3 py-2 rounded-full transition active:scale-95">
+                        <span>🛒</span>
+                        <span class="hidden sm:inline">Listám</span>
+                        <span id="wishlist-badge" class="bg-brandGreen text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">0</span>
+                    </button>
+
+                    <button onclick="openModal('calc-modal')" class="flex items-center space-x-1 bg-brandPeach/15 hover:bg-brandPeach/25 text-brandPeachDark font-bold text-xs px-3 py-2 rounded-full transition active:scale-95">
+                        <span>🧮</span>
+                        <span class="hidden sm:inline">Kalkulátor</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobil keresőmező -->
+            <div class="relative md:hidden">
+                <input id="search-input-mobile" type="text" placeholder="Keress pelenkára, tápszerre, LEGO Duplóra, mentes nasira..." class="w-full bg-gray-100/80 border border-transparent focus:border-brandGreen focus:bg-white rounded-2xl pl-10 pr-4 py-2.5 text-sm font-medium focus:outline-none transition">
+                <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+
+            <!-- Kategória fülek -->
+            <div id="category-tabs" class="flex space-x-2 overflow-x-auto no-scrollbar pb-0.5">
+                <button data-cat="all" class="cat-btn active shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold bg-brandGreen text-white shadow-sm transition">Összes termék</button>
+                <button data-cat="pelenka" class="cat-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition">👶 Pelenka</button>
+                <button data-cat="popsitorlo" class="cat-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition">🧻 Popsitörlő</button>
+                <button data-cat="tapszer" class="cat-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition">🍼 Tápszer & Bébiétel</button>
+                <button data-cat="mentes" class="cat-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition">🌿 Mentes (Tej/Glutén)</button>
+                <button data-cat="jatek" class="cat-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold bg-brandPeach/15 text-brandPeachDark hover:bg-brandPeach/25 transition">🎁 Játék & Karácsony</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 1. NÉZET: ÁRÖSSZEHASONLÍTÓ -->
+    <main id="view-compare" class="max-w-6xl mx-auto px-4 pt-5">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- BAL OLDALI VEZÉRLŐPULT -->
+            <aside class="lg:col-span-4 space-y-4 lg:sticky lg:top-36">
+                
+                <!-- KUPON & HŰSÉGPROGRAM KAPCSOLÓ SÁV -->
+                <section class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                            <span>🎟️</span> Hűségprogram / Kupon
+                        </span>
+                        <span class="text-[10px] bg-brandGreen/15 text-brandGreenDark px-2 py-0.5 rounded-full font-bold">Élő számítás</span>
+                    </div>
+                    <div class="grid grid-cols-2 lg:grid-cols-1 gap-2">
+                        <label class="flex items-center justify-between bg-red-50/60 border border-red-100 px-3.5 py-2.5 rounded-2xl cursor-pointer select-none hover:bg-red-50 transition">
+                            <div>
+                                <span class="text-xs font-bold text-red-900 block">Rossmannó</span>
+                                <span class="text-[10px] text-red-600 font-semibold">-15% babakedvezmény</span>
+                            </div>
+                            <input type="checkbox" id="toggle-rossmann" class="w-4 h-4 accent-red-600 rounded">
+                        </label>
+
+                        <label class="flex items-center justify-between bg-blue-50/60 border border-blue-100 px-3.5 py-2.5 rounded-2xl cursor-pointer select-none hover:bg-blue-50 transition">
+                            <div>
+                                <span class="text-xs font-bold text-blue-900 block">dm Active Beauty</span>
+                                <span class="text-[10px] text-blue-600 font-semibold">-10% pontbeváltás</span>
+                            </div>
+                            <input type="checkbox" id="toggle-dm" class="w-4 h-4 accent-blue-600 rounded">
+                        </label>
+                    </div>
+                </section>
+
+                <!-- BOLTI SZŰRŐ -->
+                <section class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm space-y-2.5">
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider block">🏪 Szűrés webáruházra</span>
+                    <select id="store-filter" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-brandDark focus:outline-none focus:border-brandGreen">
+                        <option value="all">Minden partner bolt (6 bolt)</option>
+                        <option value="Pepita.hu">Csak ahol Pepita.hu van</option>
+                        <option value="Alza.hu">Csak ahol Alza.hu van</option>
+                        <option value="Rossmann">Csak ahol Rossmann van</option>
+                        <option value="dm">Csak ahol dm van</option>
+                        <option value="Kifli.hu">Csak ahol Kifli.hu van</option>
+                        <option value="Auchan">Csak ahol Auchan van</option>
+                    </select>
+                </section>
+
+                <!-- ASZTALI GYORS KALKULÁTOR WIDGET -->
+                <section class="hidden lg:block bg-gradient-to-br from-brandPeach/10 to-white p-4 rounded-3xl border border-brandPeach/20 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-sm text-brandDark flex items-center gap-1.5"><span>🧮</span> Gyors darabár-ellenőrző</span>
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">Bolti akciót látsz? Írd be az árat és a darabszámot, és megmondjuk, megéri-e.</p>
+                    <button onclick="openModal('calc-modal')" class="w-full bg-brandPeach hover:bg-brandPeachDark text-white font-bold py-2 rounded-xl text-xs shadow-xs transition">
+                        Kalkulátor megnyitása
+                    </button>
+                </section>
+            </aside>
+
+            <!-- JOBB OLDALI TERMÉKLISTA TERÜLET -->
+            <div class="lg:col-span-8 space-y-4">
+                
+                <!-- DINAMIKUS AL-SZŰRŐK (Pelenka méret, Mentes allergén, Játék korosztály + Ajándék keretösszeg) -->
+                <div id="sub-filters" class="hidden flex-col gap-2"></div>
+
+                <!-- EREDMÉNYEK FEJLÉC & RENDEZÉS -->
+                <div class="flex items-center justify-between px-1">
+                    <p class="text-xs font-semibold text-gray-500"><span id="product-count" class="font-bold text-brandDark">0</span> termék összehasonlítva</p>
+                    <select id="sort-select" class="text-xs font-bold text-brandDark bg-white border border-gray-200 rounded-xl px-3 py-1.5 focus:outline-none cursor-pointer">
+                        <option value="best-unit">Legjobb egységár / akció</option>
+                        <option value="price-asc">Legolcsóbb csomagár</option>
+                        <option value="savings-desc">Legnagyobb spórolás (Ft)</option>
+                    </select>
+                </div>
+
+                <!-- TERMÉKLISTA KONTÉNER -->
+                <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
+
+                <!-- GYAKORI KÉRDÉSEK (GYIK / FAQ) -->
+                <section class="bg-white p-5 sm:p-6 rounded-3xl border border-gray-100 shadow-sm space-y-3 mt-6">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">❓</span>
+                        <h3 class="brand-title font-bold text-brandDark text-lg">Gyakori kérdések a Babigo működéséről</h3>
+                    </div>
+                    <div class="divide-y divide-gray-100 text-xs text-gray-600">
+                        <details class="py-2.5 group" open>
+                            <summary class="font-bold text-brandDark cursor-pointer list-none flex items-center justify-between">
+                                <span>Hogyan számolja ki a Babigo a valós darab- és kilogrammárat?</span>
+                                <span class="text-brandGreen font-extrabold group-open:rotate-180 transition">▼</span>
+                            </summary>
+                            <p class="pt-2 leading-relaxed">Minden pelenka, popsitörlő, tápszer és mentes élelmiszer esetében a csomagárat elosztjuk a pontos darabszámmal vagy nettó tömeggel, és eleve a legjobb egységár szerint rendezzük a boltokat – így nem tévesztenek meg az eltérő kiszerelésű (pl. 94 db vs. 136 db) csomagok.</p>
+                        </details>
+                        <details class="py-2.5 group">
+                            <summary class="font-bold text-brandDark cursor-pointer list-none flex items-center justify-between">
+                                <span>Valóban olcsóbbak a termékek, ha innen kattintok át a boltba?</span>
+                                <span class="text-brandGreen font-extrabold group-open:rotate-180 transition">▼</span>
+                            </summary>
+                            <p class="pt-2 leading-relaxed">A webáruházak árai pontosan megegyeznek a saját oldalukon található árakkal (semmilyen felár nincs). A Babigo abban segít, hogy egy pillanat alatt lásd, melyik boltban legolcsóbb ugyanaz a termék, és a hűségprogram-kapcsolókkal azt is beleszámolhatod, ha van Rossmannó (-15%) vagy dm pontbeváltási (-10%) kedvezményed.</p>
+                        </details>
+                        <details class="py-2.5 group">
+                            <summary class="font-bold text-brandDark cursor-pointer list-none flex items-center justify-between">
+                                <span>Hogyan működik az Okos Bevásárlólista és a lista megosztása?</span>
+                                <span class="text-brandGreen font-extrabold group-open:rotate-180 transition">▼</span>
+                            </summary>
+                            <p class="pt-2 leading-relaxed">A termékeknél a „+ Listára” gombbal összeállíthatod a havi bevásárlólistádat vagy ajándékötleteidet. A Listám ablakban látod az ingyenes szállítási határokat, és egyetlen gombnyomással elküldheted a kész listát a párodnak vagy a nagyszülőknek Messengeren vagy WhatsAppon.</p>
+                        </details>
+                    </div>
+                </section>
+
+                <!-- HÍRLEVÉL / ÁRÉRTESÍTŐ FELIRATKOZÁS -->
+                <section class="bg-gradient-to-br from-brandGreen/15 via-white to-brandPeach/15 p-5 sm:p-6 rounded-3xl border border-brandGreen/20 space-y-3 mt-6">
+                    <div class="flex items-start space-x-3">
+                        <span class="text-2xl">🔔</span>
+                        <div>
+                            <h3 class="brand-title font-bold text-brandDark text-lg">Kérj értesítést a valódi mélypontokról!</h3>
+                            <p class="text-xs text-gray-600 leading-relaxed">Hetente egyszer elküldjük a top pelenka, mentes élelmiszer és karácsonyi játék akciókat – spam nélkül, csak valós spórolással.</p>
+                        </div>
+                    </div>
+                    <form id="newsletter-form" class="space-y-2">
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="email" placeholder="Add meg az e-mail címed..." required class="flex-1 bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brandGreen">
+                            <button type="submit" class="bg-brandPeach hover:bg-brandPeachDark text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-sm transition active:scale-95">Feliratkozom</button>
+                        </div>
+                        <label class="flex items-start gap-2 text-[11px] text-gray-500 cursor-pointer pt-1">
+                            <input type="checkbox" required class="mt-0.5 accent-brandGreen rounded">
+                            <span>Elolvastam és elfogadom az <button type="button" onclick="openModal('adatkezeles-modal')" class="underline font-semibold text-brandDark">Adatkezelési tájékoztatót</button>, és hozzájárulok az árértesítők küldéséhez.</span>
+                        </label>
+                    </form>
+                    <p id="form-feedback" class="hidden text-xs text-brandGreenDark font-bold text-center py-1">🎉 Sikeres feliratkozás! Hamarosan jelentkezünk a legjobb ajánlatokkal.</p>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- 2. NÉZET: BABIGO MAGAZIN / BLOG & RECEPTEK -->
+    <section id="view-blog" class="hidden max-w-4xl mx-auto px-4 pt-6 space-y-8">
+        <div class="flex items-center justify-between border-b border-gray-200 pb-4">
+            <div>
+                <span class="text-xs font-bold text-brandPeachDark uppercase tracking-wider">Babigo Magazin & Konyha</span>
+                <h1 class="brand-title text-2xl sm:text-3xl font-bold text-brandDark">Receptek, spórolási tippek és útmutatók</h1>
+            </div>
+            <button onclick="switchView('compare')" class="bg-brandGreen text-white font-bold text-xs px-4 py-2 rounded-full shadow-xs hover:bg-brandGreenDark transition shrink-0">
+                ← Vissza az árakhoz
+            </button>
+        </div>
+
+        <!-- MENTES RECEPTEK (1 KATTINTÁSOS KOSÁRRAL) -->
+        <div id="recipes-section" class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="brand-title text-xl font-bold text-brandDark flex items-center gap-2">
+                    <span>🥣</span> Mentes receptek (1 kattintásos bevásárlólistával)
+                </h2>
+            </div>
+            <div id="recipes-list" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+        </div>
+
+        <!-- MAGAZIN CIKKEK -->
+        <div class="space-y-4">
+            <h2 class="brand-title text-xl font-bold text-brandDark flex items-center gap-2">
+                <span>📖</span> Spórolási tippek és vásárlási útmutatók
+            </h2>
+            <div id="blog-list" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+        </div>
+    </section>
+
+    <!-- LÁBLÉC -->
+    <footer class="max-w-6xl mx-auto px-4 pt-6 pb-8 text-center text-xs text-gray-400 space-y-3 border-t border-gray-200/60 mt-10">
+        <p class="text-[11px] text-gray-500 max-w-2xl mx-auto leading-relaxed">
+            <strong>Partnerlink tájékoztató:</strong> A Babigo.hu független árösszehasonlító szolgáltatás. A „Megnézem a boltban” gombokon keresztüli vásárlások után egyes partner webáruházaktól jutalékot kaphatunk, ami számodra semmilyen többletköltséggel nem jár, viszont segít nekünk az oldal ingyenes fenntartásában.
+        </p>
+        <div class="flex flex-wrap justify-center gap-x-4 gap-y-2 font-semibold text-gray-500">
+            <button onclick="openModal('impresszum-modal')" class="hover:text-brandDark underline">Impresszum</button>
+            <button onclick="openModal('aszf-modal')" class="hover:text-brandDark underline">Felhasználási feltételek</button>
+            <button onclick="openModal('adatkezeles-modal')" class="hover:text-brandDark underline">Adatkezelési tájékoztató</button>
+            <button onclick="showCookieBanner()" class="hover:text-brandDark underline">Süti beállítások</button>
+            <a href="mailto:hello@babigo.hu" class="hover:text-brandDark underline">Kapcsolat</a>
+        </div>
+        <p>&copy; 2026 Babigo.hu – Minden jog fenntartva.</p>
+    </footer>
+
+    <!-- SÜTI (COOKIE) TÁJÉKOZTATÓ ÉS HOZZÁJÁRULÁS SÁV -->
+    <div id="cookie-banner" class="fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] z-50 p-4 hidden">
+        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="space-y-1 text-xs text-gray-600 leading-relaxed">
+                <p class="font-bold text-brandDark text-sm">🍪 Sütiket (cookie-kat) használunk</p>
+                <p>
+                    Az oldal működéséhez elengedhetetlen sütik mellett statisztikai és partnerprogram-követő (affiliate) sütiket használunk, hogy mérni tudjuk a boltokba irányuló kattintásokat. Részletek az <button onclick="openModal('adatkezeles-modal')" class="underline font-semibold text-brandDark">Adatkezelési tájékoztatóban</button>.
+                </p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+                <button onclick="setCookieConsent('essential')" class="flex-1 sm:flex-initial bg-gray-100 hover:bg-gray-200 text-brandDark font-bold px-4 py-2.5 rounded-xl text-xs transition">
+                    Csak a szükségesek
+                </button>
+                <button onclick="setCookieConsent('all')" class="flex-1 sm:flex-initial bg-brandGreen hover:bg-brandGreenDark text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-sm transition">
+                    Mindent elfogadok
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: OKOS BEVÁSÁRLÓLISTA & MEGOSZTÁS -->
+    <div id="wishlist-modal" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-xl relative max-h-[88vh] overflow-y-auto">
+            <button onclick="closeModal('wishlist-modal')" class="sticky top-0 float-right w-8 h-8 rounded-full bg-gray-100 text-gray-500 font-bold flex items-center justify-center">✕</button>
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl">🛒</span>
+                <div>
+                    <h2 class="brand-title text-xl font-bold text-brandDark">Okos Bevásárlólistám</h2>
+                    <p class="text-xs text-gray-400">Legjobb árak + ingyenes szállítási küszöb figyelő</p>
+                </div>
+            </div>
+            <div id="wishlist-items" class="space-y-2.5"></div>
+            <div id="wishlist-summary" class="hidden space-y-3">
+                <div class="bg-brandGreen/10 p-4 rounded-2xl space-y-1 border border-brandGreen/20">
+                    <div class="flex justify-between text-xs font-semibold text-gray-600">
+                        <span>Vegyes kosár (mindenhol a legolcsóbb):</span>
+                        <span id="wishlist-total" class="text-base font-extrabold text-brandDark">0 Ft</span>
+                    </div>
+                    <div class="flex justify-between text-xs font-bold text-brandPeachDark">
+                        <span>Megspórolva a legdrágább boltokhoz képest:</span>
+                        <span id="wishlist-saved">0 Ft</span>
+                    </div>
+                </div>
+                <div id="store-bundles" class="space-y-2"></div>
+
+                <!-- LISTA MEGOSZTÁSA GOMB -->
+                <div class="pt-2 space-y-1.5">
+                    <button onclick="shareWishlist()" class="w-full bg-brandDark hover:bg-gray-800 text-white font-bold py-3 rounded-2xl text-xs shadow-sm transition flex items-center justify-center gap-2 active:scale-95">
+                        <span>📤</span>
+                        <span>Lista megosztása (WhatsApp / Messenger / Másolás)</span>
+                    </button>
+                    <p id="share-feedback" class="hidden text-center text-[11px] font-bold text-brandGreenDark">✅ A lista vágólapra másolva! Illeszd be Messengerbe vagy WhatsAppba.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: GYORS EGYSÉGÁR-KALKULÁTOR -->
+    <div id="calc-modal" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl relative">
+            <button onclick="closeModal('calc-modal')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 text-gray-500 font-bold flex items-center justify-center">✕</button>
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl">🧮</span>
+                <div>
+                    <h2 class="brand-title text-xl font-bold text-brandDark">Bolti Egységár-kalkulátor</h2>
+                    <p class="text-xs text-gray-400">Számold ki azonnal, megéri-e a kiszerelés!</p>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Csomag ára (Ft)</label>
+                    <input id="calc-price" type="number" placeholder="pl. 7990" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2.5 text-lg font-bold focus:outline-none focus:border-brandGreen">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label id="calc-qty-label" class="block text-xs font-bold text-gray-500 uppercase mb-1">Darabszám (db)</label>
+                        <input id="calc-qty" type="number" placeholder="pl. 88" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2.5 text-lg font-bold focus:outline-none focus:border-brandGreen">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Kategória</label>
+                        <select id="calc-type" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-3 py-2.5 text-sm font-bold focus:outline-none focus:border-brandGreen">
+                            <option value="pelenka">Pelenka (Ft/db)</option>
+                            <option value="popsitorlo">Popsitörlő (Ft/db)</option>
+                            <option value="suly">Tápszer/Étel (Ft/kg)</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="calc-result" class="hidden bg-brandGreen/10 p-4 rounded-2xl text-center space-y-1">
+                    <span class="text-[11px] font-bold text-gray-500 uppercase">Valós egységár</span>
+                    <div id="calc-unit-val" class="text-2xl font-extrabold text-brandDark">0 Ft/db</div>
+                    <span id="calc-verdict" class="inline-block text-xs font-bold px-3 py-1 rounded-full"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: BLOG CIKK & RECEPT OLVASÓ -->
+    <div id="article-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-4 shadow-xl relative max-h-[85vh] overflow-y-auto">
+            <button onclick="closeModal('article-modal')" class="sticky top-0 float-right w-8 h-8 rounded-full bg-gray-100 text-gray-500 font-bold flex items-center justify-center">✕</button>
+            <div id="article-content" class="space-y-3 text-sm text-gray-700 leading-relaxed"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: IMPRESSZUM -->
+    <div id="impresszum-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-3 shadow-xl relative text-xs text-gray-600 leading-relaxed max-h-[85vh] overflow-y-auto">
+            <button onclick="closeModal('impresszum-modal')" class="sticky top-0 float-right w-8 h-8 rounded-full bg-gray-100 text-gray-500 font-bold flex items-center justify-center">✕</button>
+            <h2 class="brand-title text-xl font-bold text-brandDark">Impresszum</h2>
+            <p>Az elektronikus kereskedelmi szolgáltatások, valamint az információs társadalommal összefüggő szolgáltatások egyes kérdéseiről szóló 2001. évi CVIII. törvény (Ekertv.) 4. §-a alapján az alábbi adatokat tesszük közzé:</p>
+            
+            <div class="bg-gray-50 p-3.5 rounded-2xl space-y-1.5 border border-gray-100">
+                <p class="font-bold text-brandDark text-sm pb-0.5">Szolgáltató adatai</p>
+                <p><strong>Szolgáltató neve:</strong> Kun Máté egyéni vállalkozó</p>
+                <p><strong>Székhely és levelezési cím:</strong> 5100 Jászberény, Berényi utca 11.</p>
+                <p><strong>Adószám:</strong> 59902887-1-36</p>
+                <p><strong>Nyilvántartási szám:</strong> 57950774</p>
+                <p><strong>Nyilvántartásba vevő hatóság:</strong> Nemzeti Adó- és Vámhivatal (NAV)</p>
+                <p><strong>Elektronikus elérhetőség:</strong> <a href="mailto:hello@babigo.hu" class="underline font-semibold text-brandDark">hello@babigo.hu</a></p>
+            </div>
+
+            <div class="bg-gray-50 p-3.5 rounded-2xl space-y-1.5 border border-gray-100">
+                <p class="font-bold text-brandDark text-sm pb-0.5">Tárhely- és infrastruktúra-szolgáltatók</p>
+                <p><strong>Tárhelyszolgáltató:</strong> Netlify, Inc. (512 2nd Street, Suite 200, San Francisco, CA 94107, USA • Elérhetőség: support@netlify.com)</p>
+                <p><strong>DNS és hálózati védelem:</strong> Cloudflare, Inc. (101 Townsend St., San Francisco, CA 94107, USA • Elérhetőség: support@cloudflare.com)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: FELHASZNÁLÁSI FELTÉTELEK (ÁSZF) -->
+    <div id="aszf-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-3 shadow-xl relative text-xs text-gray-600 leading-relaxed max-h-[85vh] overflow-y-auto">
+            <button onclick="closeModal('aszf-modal')" class="sticky top-0 float-right w-8 h-8 rounded-full bg-gray-100 text-gray-500 font-bold flex items-center justify-center">✕</button>
+            <h2 class="brand-title text-xl font-bold text-brandDark">Felhasználási feltételek (ÁSZF)</h2>
+            <p class="text-[11px] text-gray-400">Hatályos: 2026. november 13-tól visszavonásig</p>
+
+            <h3 class="font-bold text-brandDark text-sm pt-1">1. A szolgáltatás jellege és a felek jogviszonya</h3>
+            <p>A <strong>babigo.hu</strong> weboldalt (továbbiakban: Szolgáltató) Kun Máté egyéni vállalkozó üzemelteti. A Szolgáltató független online árösszehasonlító, egységár-kalkulációs és tájékoztató tartalomszolgáltatást nyújt. A Szolgáltató <strong>nem végez közvetlen kiskereskedelmi értékesítést</strong>, nem üzemeltet webáruházat, és a felületen megjelenő termékek adásvételében sem eladóként, sem bizományosként, sem közvetítő megbízottként nem vesz részt. A vásárlási szerződés minden esetben közvetlenül a Felhasználó és az adott partner webáruház között jön létre.</p>
+
+            <h3 class="font-bold text-brandDark text-sm pt-1">2. Rangsorolás átláthatósága és partnerkapcsolatok (Affiliate)</h3>
+            <p>A fogyasztóvédelmi előírásoknak megfelelően tájékoztatjuk a Felhasználókat, hogy a termékek alatti bolti ajánlatok sorrendje <strong>kizárólag objektív matematikai egységár (Ft/db, Ft/kg) vagy csomagár alapján</strong>, növekvő sorrendben történik. A rangsorolást <strong>nem befolyásolja</strong>, hogy a Szolgáltató az adott webáruháztól mekkora partneri jutalékban részesül, illetve rendelkezik-e az adott bolttal affiliate együttműködéssel. A „Megnézem / Irány a bolt” gombokon keresztüli átkattintást követő vásárlások után egyes partner webáruházak vagy partnerhálózatok (pl. Dognet, CJ Affiliate) jutalékot fizethetnek a Szolgáltatónak, amely a Felhasználó számára semmilyen többletköltséget nem jelent.</p>
+
+            <h3 class="font-bold text-brandDark text-sm pt-1">3. Árak, szállítási küszöbök és ártörténeti adatok</h3>
+            <p>A felületen megjelenített árak, egységárak, kiszerelések, ingyenes szállítási értékhatárok és készletinformációk a partner webáruházak nyilvános termékadatbázisaiból származnak, és <strong>kizárólag tájékoztató jellegűek</strong>. A webáruházak árai és szállítási feltételei napközben is változhatnak; minden esetben a partner webáruház saját felületén, a megrendelés véglegesítésekor feltüntetett ár és szerződési feltétel az irányadó. Az esetleges ártörténeti jelvények (pl. „30 napos mélypont”) a Szolgáltató saját rendszerében rögzített korábbi napi árak összevetésén alapulnak.</p>
+
+            <h3 class="font-bold text-brandDark text-sm pt-1">4. Kupon- és hűségprogram kalkulátor</h3>
+            <p>A felületen elérhető hűségprogram-kapcsolók (pl. Rossmannó, dm Active Beauty) becsült matematikai számítást végeznek az általános kedvezménymértékek alapján. A kedvezmények tényleges érvényesíthetősége minden esetben az adott kereskedelmi lánc mindenkori hűségprogram-szabályzatától, az egyedi kuponok meglététől és az egyes termékekre vonatkozó kizárásoktól függ.</p>
+
+            <h3 class="font-bold text-brandDark text-sm pt-1">5. Allergén-, étrendi szűrők és Magazin tartalmak</h3>
+            <p>A „Mentes” kategóriában elérhető szűrők (pl. tejmentes, gluténmentes, cukormentes), valamint a Babigo Magazinban megjelenő cikkek, útmutatók és receptajánlások kizárólag tájékoztató jellegűek, és <strong>nem minősülnek orvosi, dietetikai vagy egészségügyi tanácsadásnak</strong>. A termékek összetétele és a gyártói keresztszennyeződési jelölések változhatnak, ezért élelmiszer-allergia vagy intolerancia esetén a Felhasználó köteles minden vásárlás előtt közvetlenül a termék csomagolásán és a partner webáruház termékoldalán ellenőrizni a hivatalos összetevőlistát.</p>
+
+            <h3 class="font-bold text-brandDark text-sm pt-1">6. Szerzői jogok</h3>
+            <p>A babigo.hu weboldal felépítése, forráskódja, egyedi kalkulációs logikája, szöveges tartalmai és arculati elemei a Szolgáltató szellemi tulajdonát képezik. A megjelenített márkanevek, logók és termékfotók a mindenkori jogosultak tulajdonát képezik.</p>
+
+            <h3 class="font-bold text-brandDark text-sm pt-1">7. Panaszkezelés és jogorvoslati lehetőségek</h3>
+            <p>A weboldal működésével kapcsolatos észrevételeket és panaszokat a Szolgáltató a <strong>hello@babigo.hu</strong> e-mail címen fogadja, és legkésőbb 30 napon belül írásban megválaszolja. A megvásárolt termékekkel, szállítással vagy elállással kapcsolatos igényeket közvetlenül az értékesítő partner webáruháznál kell érvényesíteni.</p>
+            <p>Fogyasztói jogvita esetén a Felhasználó a lakóhelye vagy tartózkodási helye szerint illetékes békéltető testülethez, illetve a Szolgáltató székhelye szerint illetékes testülethez fordulhat:<br>
+            <strong>Jász-Nagykun-Szolnok Vármegyei Békéltető Testület</strong> (Cím: 5000 Szolnok, Verseghy park 8. III. emelet 305-306. • E-mail: bekeltetotestulet@iparkamaraszolnok.hu • Telefon: +36 20 373 2570).</p>
+        </div>
+    </div>
+
+    <!-- MODAL: ADATKEZELÉSI TÁJÉKOZTATÓ (GDPR) -->
+    <div id="adatkezeles-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-3 shadow-xl relative text-xs text-gray-600 leading-relaxed max-h-[85vh] overflow-y-auto">
+            <button onclick="closeModal('adatkezeles-modal')" class="sticky top-0 float-right w-8 h-8 rounded-full bg-gray-100 text-gray-500 font-bold flex items-center justify-center">✕</button>
+            <h2 class="brand-title text-xl font-bold text-brandDark">Adatkezelési tájékoztató</h2>
+            <p class="text-[11px] text-gray-400">Hatályos: 2026. november 13-tól • Készült az (EU) 2016/679 rendelet (GDPR) és a 2011. évi CXII. törvény (Infotv.) alapján.</p>
+
+            <h3 class="font-bold text-brandDark text-sm pt-1">1. Adatkezelő adatai</h3>
+            <p><strong>Név:</strong> Kun Máté egyéni vállalkozó | <strong>Székhely:</strong> 5100 Jászberény, Berényi utca 11. | <strong>Adószám:</strong> 59902887-1-36 | <strong>Nyilvántartási szám:</strong> 57950774 | <strong>E-mail:</strong> hello@babigo.hu</p>
+
+            <h3 class="font-bold text-brandDark text-sm pt-1">2. Hírlevél és árértesítő értesítések kezelése</h3>
+            <p><strong>Az adatkezelés célja:</strong> Heti akcióösszefoglalók, árösszehasonlító tippek, valamint a Felhasználó által kért konkrét termék-árértesítők (pl. áresés jelzése) elektronikus megküldése.<br>
+            <strong>Kezelt adatok köre:</strong> E-mail cím, a feliratkozás időpontja, valamint árértesítő beállítása esetén a figyelt termék(ek) azonosítója és célértéke.<br>
+            <strong>Jogalap:</strong> Az érintett önkéntes, konkrét és tájékozott hozzájárulása (GDPR 6. cikk (1) bekezdés a) pont).<br>
+            <strong>Időtartam:</strong> A hozzájárulás visszavonásáig (leiratkozásig). Minden kiküldött levél alján található egy kattintással működő leiratkozó link, emellett a törlés a hello@babigo.hu címen is kérhető.</p>
+
+            <h3 class="font-bold text-brandDark text-sm pt-1">3. Kapcsolatfelvétel e-mailben</h3>
+            <p><strong>Cél:</strong> A Felhasználók által a hello@babigo.hu címre küldött kérdések, hibabejelentések vagy panaszok megválaszolása.<br>
+            <strong>Kezelt adatok:</strong> Feladó neve, e-mail címe, az üzenet tartalma.<br>
+            <strong>Jogalap:</strong> Az adatkezelő jogos érdeke a megkeresések megválaszolására (GDPR 6. cikk (1) bekezdés f) pont), fogyasztói panasz esetén jogi kötelezettség teljesítése (GDPR 6. cikk (1) bekezdés c) pont).<br>
+            <strong>Időtartam:</strong> Általános megkeresés esetén az ügy lezárását követő 1 év, fogyasztói panasz esetén a jogszabályban előírt 3 év.</p>
+
+            <h3 class="font-bold text-brandDark text-sm pt-1">4. Helyi tárolás (LocalStorage), sütik és partnerprogram (Affiliate) mérés</h3>
+            <p><strong>Működéshez szükséges tárolás:</strong> A böngésző helyi tárolójában (LocalStorage) rögzítjük a süti-hozzájárulási döntésedet, valamint az általad összeállított Bevásárlólista elemeit. Ezek az adatok kizárólag a saját eszközödön tárolódnak, és nem kerülnek továbbításra az Adatkezelő szerverére (jogalap: jogos érdek / a kért szolgáltatás nyújtása).<br>
+            <strong>Partnerprogram (Affiliate) sütik:</strong> Amennyiben a „Megnézem / Irány a bolt” gombra kattintasz, a célwebáruház partnerhálózata (pl. Dognet, CJ Affiliate) technikai azonosító sütit helyezhet el a böngésződben annak érdekében, hogy a vásárlás jutaléka elszámolható legyen. A Babigo.hu <strong>semmilyen személyes adatot (nevet, e-mail címet) nem ad át</strong> a partner webáruházaknak. Az opcionális mérési sütik kizárólag a süti sávban adott hozzájárulásod esetén aktiválódnak.</p>
+
+            <h3 class="font-bold text-brandDark text-sm pt-1">5. Adatfeldolgozók és adattovábbítás</h3>
+            <p>A weboldal technikai kiszolgálásához és biztonságához az alábbi adatfeldolgozókat vesszük igénybe: <strong>Netlify, Inc.</strong> (statikus tárhelyszolgáltatás, USA) és <strong>Cloudflare, Inc.</strong> (DNS-kezelés, e-mail átirányítás és hálózati védelem, USA). Az Európai Gazdasági Térségen (EGT) kívüli adatfeldolgozás az EU–USA Adatvédelmi Keretrendszer (EU-U.S. Data Privacy Framework) és az Európai Bizottság által elfogadott Általános Szerződési Feltételek (SCC) garanciái mellett történik.</p>
+
+            <h3 class="font-bold text-brandDark text-sm pt-1">6. Érintetti jogok és jogorvoslat</h3>
+            <p>Jogosult vagy tájékoztatást kérni személyes adataid kezeléséről, kérheted azok helyesbítését, törlését („elfeledtetéshez való jog”), az adatkezelés korlátozását, valamint adathordozhatóságot a <strong>hello@babigo.hu</strong> címen. Amennyiben megítélésed szerint az adatkezelés sérti a GDPR rendelkezéseit, panasszal fordulhatsz a felügyeleti hatósághoz:<br>
+            <strong>Nemzeti Adatvédelmi és Információszabadság Hatóság (NAIH)</strong> (1055 Budapest, Falk Miksa utca 9-11. • Postacím: 1363 Budapest, Pf. 9. • E-mail: ugyfelszolgalat@naih.hu • Web: www.naih.hu).</p>
+        </div>
+    </div>
+
+    <!-- ALKALMAZÁS LOGIKA -->
+    <script>
+        // SÜTI HOZZÁJÁRULÁS
+        function checkCookieConsent() {
+            if (!localStorage.getItem('babigo_cookie_consent')) {
+                document.getElementById('cookie-banner').classList.remove('hidden');
+            }
+        }
+        function setCookieConsent(level) {
+            localStorage.setItem('babigo_cookie_consent', level);
+            document.getElementById('cookie-banner').classList.add('hidden');
+        }
+        function showCookieBanner() {
+            document.getElementById('cookie-banner').classList.remove('hidden');
+        }
+
+        // BOLTI INGYENES SZÁLLÍTÁSI KÜSZÖBÖK
+        const freeShippingThresholds = {
+            "Pepita.hu": 15000,
+            "Alza.hu": 15000,
+            "Rossmann": 12000,
+            "dm": 15000,
+            "Kifli.hu": 14000,
+            "Auchan": 20000
+        };
+
+        // TERMÉKADATBÁZIS
+        const products = [
+            {
+                id: 1,
+                name: "Pampers Premium Care 4 (9-14 kg) Havi csomag",
+                category: "pelenka",
+                diaperSize: "4",
+                unitType: "db",
+                badge: "🏆 Legjobb darabár",
+                tags: ["4-es méret", "Havi csomag"],
+                offers: [
+                    { store: "Pepita.hu", price: 11490, qty: 136, url: "#pepita-pampers", isRossmann: false, isDm: false },
+                    { store: "Alza.hu", price: 11890, qty: 136, url: "#alza-pampers", isRossmann: false, isDm: false },
+                    { store: "Rossmann", price: 8990, qty: 94, url: "#rossmann-pampers", isRossmann: true, isDm: false },
+                    { store: "dm", price: 9190, qty: 94, url: "#dm-pampers", isRossmann: false, isDm: true }
+                ]
+            },
+            {
+                id: 2,
+                name: "Libero Touch 4 (7-11 kg) Nyitott pelenka",
+                category: "pelenka",
+                diaperSize: "4",
+                unitType: "db",
+                badge: "🌿 Bőrbarát",
+                tags: ["4-es méret", "Illatanyagmentes"],
+                offers: [
+                    { store: "Rossmann", price: 5490, qty: 50, url: "#rossmann-libero", isRossmann: true, isDm: false },
+                    { store: "dm", price: 5590, qty: 50, url: "#dm-libero", isRossmann: false, isDm: true },
+                    { store: "Kifli.hu", price: 5790, qty: 50, url: "#kifli-libero", isRossmann: false, isDm: false }
+                ]
+            },
+            {
+                id: 9,
+                name: "Pampers Pants 5 (12-17 kg) Bugyipelenka Havi csomag",
+                category: "pelenka",
+                diaperSize: "5",
+                unitType: "db",
+                badge: "🏃‍♂️ Bugyipelenka",
+                tags: ["5-ös méret", "108 db"],
+                offers: [
+                    { store: "Alza.hu", price: 10990, qty: 108, url: "#alza-pants5", isRossmann: false, isDm: false },
+                    { store: "Pepita.hu", price: 11290, qty: 108, url: "#pepita-pants5", isRossmann: false, isDm: false },
+                    { store: "Rossmann", price: 8290, qty: 72, url: "#rossmann-pants5", isRossmann: true, isDm: false }
+                ]
+            },
+            {
+                id: 3,
+                name: "LEGO® Duplo® 10954 Számvonat - Tanulj meg számolni!",
+                category: "jatek",
+                unitType: "fix",
+                ageGroup: "1-3",
+                badge: "🎄 Karácsonyi sláger",
+                tags: ["1,5+ éves kortól", "LEGO Duplo", "-24% akció"],
+                offers: [
+                    { store: "Alza.hu", price: 5890, qty: 1, url: "#alza-duplo", isRossmann: false, isDm: false },
+                    { store: "Pepita.hu", price: 6190, qty: 1, url: "#pepita-duplo", isRossmann: false, isDm: false },
+                    { store: "Auchan", price: 7490, qty: 1, url: "#auchan-duplo", isRossmann: false, isDm: false }
+                ]
+            },
+            {
+                id: 10,
+                name: "Play-Doh Gyurmakészlet – Kis szakács szett (8 tégely)",
+                category: "jatek",
+                unitType: "fix",
+                ageGroup: "3+",
+                badge: "🎨 5 000 Ft alatt",
+                tags: ["3+ éves kortól", "Kreatív játék"],
+                offers: [
+                    { store: "Pepita.hu", price: 3990, qty: 1, url: "#pepita-playdoh", isRossmann: false, isDm: false },
+                    { store: "Alza.hu", price: 4290, qty: 1, url: "#alza-playdoh", isRossmann: false, isDm: false },
+                    { store: "Auchan", price: 4790, qty: 1, url: "#auchan-playdoh", isRossmann: false, isDm: false }
+                ]
+            },
+            {
+                id: 4,
+                name: "Schär Glutén- és Tejmentes Babapiskóta (Savoiardi)",
+                category: "mentes",
+                unitType: "kg",
+                allergens: ["glutenmentes", "tejmentes"],
+                badge: "🌿 100% Tej- és gluténmentes",
+                tags: ["Gluténmentes", "Tejmentes", "200 g"],
+                offers: [
+                    { store: "Kifli.hu", price: 1190, qty: 0.2, url: "#kifli-schar", isRossmann: false, isDm: false },
+                    { store: "dm", price: 1290, qty: 0.2, url: "#dm-schar", isRossmann: false, isDm: true },
+                    { store: "Rossmann", price: 1350, qty: 0.2, url: "#rossmann-schar", isRossmann: true, isDm: false }
+                ]
+            },
+            {
+                id: 5,
+                name: "WaterWipes Biológiailag lebomló popsitörlő (9x60 db)",
+                category: "popsitorlo",
+                unitType: "db",
+                badge: "💧 99,9% víz",
+                tags: ["540 db", "Érzékeny bőrre"],
+                offers: [
+                    { store: "Pepita.hu", price: 8990, qty: 540, url: "#pepita-waterwipes", isRossmann: false, isDm: false },
+                    { store: "Alza.hu", price: 9290, qty: 540, url: "#alza-waterwipes", isRossmann: false, isDm: false },
+                    { store: "Rossmann", price: 10490, qty: 540, url: "#rossmann-waterwipes", isRossmann: true, isDm: false }
+                ]
+            },
+            {
+                id: 6,
+                name: "Nestlé BEBA OPTIPRO 3 Junior tejalapú anyatej-kiegészítő (1000 g)",
+                category: "tapszer",
+                unitType: "kg",
+                badge: "🍼 Gazdaságos 1 kg",
+                tags: ["12 hónapos kortól", "1000 g"],
+                offers: [
+                    { store: "Rossmann", price: 5690, qty: 1.0, url: "#rossmann-beba", isRossmann: true, isDm: false },
+                    { store: "dm", price: 5790, qty: 1.0, url: "#dm-beba", isRossmann: false, isDm: true },
+                    { store: "Kifli.hu", price: 5990, qty: 1.0, url: "#kifli-beba", isRossmann: false, isDm: false }
+                ]
+            },
+            {
+                id: 7,
+                name: "Fisher-Price Tanuló kutyus – magyar nyelvű",
+                category: "jatek",
+                unitType: "fix",
+                ageGroup: "0-1",
+                badge: "🎁 Klasszikus ajándék",
+                tags: ["6-36 hónapos korig", "Magyar nyelvű"],
+                offers: [
+                    { store: "Pepita.hu", price: 9490, qty: 1, url: "#pepita-kutyus", isRossmann: false, isDm: false },
+                    { store: "Alza.hu", price: 9790, qty: 1, url: "#alza-kutyus", isRossmann: false, isDm: false }
+                ]
+            },
+            {
+                id: 8,
+                name: "Hipp Bio Gyümölcspüré – Alma-Banán-Babakeksz (hozzáadott cukor nélkül)",
+                category: "mentes",
+                unitType: "kg",
+                allergens: ["cukormentes", "tejmentes"],
+                badge: "🍎 Hozzáadott cukor nélkül",
+                tags: ["Cukormentes", "Tejmentes", "190 g"],
+                offers: [
+                    { store: "dm", price: 549, qty: 0.19, url: "#dm-hipp", isRossmann: false, isDm: true },
+                    { store: "Rossmann", price: 569, qty: 0.19, url: "#rossmann-hipp", isRossmann: true, isDm: false },
+                    { store: "Kifli.hu", price: 599, qty: 0.19, url: "#kifli-hipp", isRossmann: false, isDm: false }
+                ]
+            }
+        ];
+
+        // ALAPÉRTELMEZETT BLOG CIKKEK & RECEPTEK (Pages CMS content.json felülírja/kiegészíti)
+        let blogPosts = [
+            {
+                slug: "pelenka-darabar-2026",
+                tag: "👶 Pelenka útmutató",
+                date: "2026. november 13.",
+                title: "Mennyi a reális pelenka darabár 2026-ban? Így ne dőlj be az „akciós” havi csomagoknak!",
+                excerpt: "Sokszor a 136 darabos óriásdoboz drágábbra jön ki darabonként, mint egy Rossmannó kuponnal megvett kisebb csomag. Mutatjuk a pontos matekot.",
+                content: `
+                    <span class="bg-brandGreen/15 text-brandGreenDark text-xs font-bold px-3 py-1 rounded-full">👶 Pelenka útmutató</span>
+                    <h2 class="brand-title text-2xl font-bold text-brandDark pt-2">Mennyi a reális pelenka darabár 2026-ban?</h2>
+                    <p class="text-xs text-gray-400">Közzétéve: 2026. november 13. • Szerző: Babigo Szerkesztőség</p>
+                    <p>A boltok polcain szinte minden héten villognak a sárga akciós címkék, de a gyártók folyamatosan változtatják a csomagokban lévő darabszámokat (94 db, 108 db, 136 db). Emiatt szabad szemmel szinte lehetetlen megmondani, melyik éri meg jobban.</p>
+                    <h3 class="font-bold text-brandDark text-base pt-2">A 4-es méretű pelenkák (9–14 kg) irányadó darabárai:</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>70–82 Ft / db:</strong> Kifejezetten jó vétel (prémium márkáknál is ez a mélypont).</li>
+                        <li><strong>83–98 Ft / db:</strong> Normál, átlagos piaci ár.</li>
+                        <li><strong>100 Ft / db felett:</strong> Túlárazott – érdemes megvárni a következő kupont vagy online akciót.</li>
+                    </ul>
+                    <p class="bg-brandBg p-4 rounded-2xl border border-gray-200 font-semibold">💡 Babigo tipp: Kapcsold be a főoldalon a Rossmannó (-15%) vagy dm Active Beauty (-10%) kapcsolót, mert sokszor ezekkel a drogériák verik a nagy webshopok havi csomagárait is!</p>
+                `
+            },
+            {
+                slug: "mentes-nasik-kisgyerekeknek",
+                tag: "🌿 Mentes konyha",
+                date: "2026. november 12.",
+                title: "Tejfehérje- és gluténmentes nasik kisgyerekeknek: hol érdemes beszerezni őket?",
+                excerpt: "A speciális étrend nem kell, hogy megduplázza a havi bevásárlást. Összegyűjtöttük, melyik webáruházban érdemes tárazni a mentes alapanyagokból.",
+                content: `
+                    <span class="bg-brandGreen/15 text-brandGreenDark text-xs font-bold px-3 py-1 rounded-full">🌿 Mentes konyha</span>
+                    <h2 class="brand-title text-2xl font-bold text-brandDark pt-2">Tejfehérje- és gluténmentes nasik kisgyerekeknek</h2>
+                    <p class="text-xs text-gray-400">Közzétéve: 2026. november 12. • Szerző: Babigo Szerkesztőség</p>
+                    <p>Ha tejfehérje- vagy gluténmentes étrendet követtek a kicsivel, hamar feltűnik, hogy ugyanaz a babapiskóta vagy gyümölcspüré akár 25–30%-kal is eltérhet két üzletlánc között.</p>
+                    <p>A Babigo <strong>Mentes</strong> fülén külön szűrhetsz tejmentes, gluténmentes és hozzáadott cukor nélküli termékekre, és azonnal kilogrammra vetítve látod a valós árat.</p>
+                `
+            }
+        ];
+
+        let recipes = [
+            {
+                slug: "5-perces-gyumolcsos-babapiskota-pohar",
+                tag: "🌿 Tej- és gluténmentes",
+                prepTime: "5 perc",
+                title: "5 perces almás-banános réteges pohárkrém mentes babapiskótával",
+                excerpt: "Villámgyors, sütés nélküli uzsonna tejfehérje- és gluténmentes étrendbe is. Tedd a hozzávalókat egy kattintással a bevásárlólistádra!",
+                productIds: "4, 8",
+                body: "### Hozzávalók (2 kis adaghoz)\n- 6 db Schär glutén- és tejmentes babapiskóta\n- 1 üveg Hipp Bio alma-banán-babakeksz gyümölcspüré (hozzáadott cukor nélkül)\n- Egy csipet őrölt fahéj\n\n### Elkészítés\n1. Tördeld a mentes babapiskótákat két kis üvegpohár aljára.\n2. Kanalazd rá a gyümölcspüré felét, majd rétegezz rá még egy sor piskótát és pürét.\n3. Hagyd állni 10 percet a hűtőben, hogy a piskóta kellemesen megpuhuljon, és már tálalhatod is!"
+            }
+        ];
+
+        // EGYSZERŰ MARKDOWN -> HTML ÁTALAKÍTÓ A PAGES CMS SZÖVEGEKHEZ
+        function formatMarkdown(md) {
+            if (!md) return '';
+            let html = md
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/^### (.*$)/gim, '<h3 class="font-bold text-brandDark text-base pt-2">$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2 class="brand-title font-bold text-brandDark text-lg pt-2">$1</h2>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+            const lines = html.split(/\r?\n/);
+            let out = [];
+            let inList = false;
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+                    if (!inList) { out.push('<ul class="list-disc pl-5 space-y-1">'); inList = true; }
+                    out.push(`<li>${trimmed.slice(2)}</li>`);
+                } else {
+                    if (inList) { out.push('</ul>'); inList = false; }
+                    if (trimmed.startsWith('<h')) out.push(trimmed);
+                    else if (trimmed.length > 0) out.push(`<p>${trimmed}</p>`);
+                }
+            });
+            if (inList) out.push('</ul>');
+            return out.join('\n');
+        }
+
+        // PAGES CMS TARTALOM BETÖLTÉSE (content.json)
+        async function loadCmsContent() {
+            try {
+                const res = await fetch('/content.json?v=' + Date.now());
+                if (!res.ok) return;
+                const data = await res.json();
+                if (Array.isArray(data.posts) && data.posts.length > 0) {
+                    const cmsPosts = data.posts.map(p => ({
+                        slug: p.slug,
+                        tag: p.tag || '💡 Spórolási tipp',
+                        date: p.date || '2026.',
+                        title: p.title,
+                        excerpt: p.excerpt,
+                        content: `
+                            <span class="bg-brandGreen/15 text-brandGreenDark text-xs font-bold px-3 py-1 rounded-full">${p.tag || '💡 Spórolási tipp'}</span>
+                            <h2 class="brand-title text-2xl font-bold text-brandDark pt-2">${p.title}</h2>
+                            <p class="text-xs text-gray-400">Közzétéve: ${p.date || ''} • Szerző: Babigo Szerkesztőség</p>
+                            ${formatMarkdown(p.body)}
+                        `
+                    }));
+                    blogPosts = [...cmsPosts, ...blogPosts];
+                }
+                if (Array.isArray(data.recipes) && data.recipes.length > 0) {
+                    recipes = [...data.recipes, ...recipes];
+                }
+                if (!document.getElementById('view-blog').classList.contains('hidden')) {
+                    renderBlogList();
+                }
+            } catch (e) {
+                // Ha még nincs content.json, az alapértelmezett tartalom fut tovább
+            }
+        }
+
+        // ÁLLAPOT
+        let currentCat = 'all';
+        let currentSubFilter = 'all';
+        let currentPriceRange = 'all';
+        let selectedStore = 'all';
+        let searchQuery = '';
+        let rossmannDiscount = false;
+        let dmDiscount = false;
+        let expandedCards = new Set();
+        let wishlist = new Set(JSON.parse(localStorage.getItem('babigo_wishlist') || '[]'));
+
+        const productListEl = document.getElementById('product-list');
+        const productCountEl = document.getElementById('product-count');
+        const subFiltersEl = document.getElementById('sub-filters');
+
+        function saveWishlist() {
+            localStorage.setItem('babigo_wishlist', JSON.stringify([...wishlist]));
+            document.getElementById('wishlist-badge').innerText = wishlist.size;
+        }
+
+        function toggleWishlist(id, e) {
+            if (e) e.stopPropagation();
+            if (wishlist.has(id)) wishlist.delete(id);
+            else wishlist.add(id);
+            saveWishlist();
+            renderProducts();
+            renderWishlistModal();
+        }
+
+        // RECEPT HOZZÁVALÓK 1 KATTINTÁSOS KOSÁRBA TÉTELE
+        function addRecipeToWishlist(productIdsStr, e) {
+            if (e) e.stopPropagation();
+            if (!productIdsStr) return;
+            const ids = productIdsStr.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+            ids.forEach(id => {
+                if (products.some(p => p.id === id)) {
+                    wishlist.add(id);
+                }
+            });
+            saveWishlist();
+            renderProducts();
+            openModal('wishlist-modal');
+        }
+
+        function switchView(view) {
+            const compareEl = document.getElementById('view-compare');
+            const blogEl = document.getElementById('view-blog');
+            if (view === 'blog') {
+                compareEl.classList.add('hidden');
+                blogEl.classList.remove('hidden');
+                renderBlogList();
+            } else {
+                blogEl.classList.add('hidden');
+                compareEl.classList.remove('hidden');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderBlogList() {
+            document.getElementById('recipes-list').innerHTML = recipes.map(rec => `
+                <article onclick="openRecipe('${rec.slug}')" class="bg-white p-5 rounded-3xl border border-brandGreen/25 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between space-y-3">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="bg-brandGreen/15 text-brandGreenDark text-[11px] font-bold px-2.5 py-0.5 rounded-full">${rec.tag || '🌿 Mentes recept'}</span>
+                            <span class="text-[11px] text-gray-400 font-semibold">⏱️ ${rec.prepTime || '15 perc'}</span>
+                        </div>
+                        <h3 class="brand-title text-lg font-bold text-brandDark leading-snug">${rec.title}</h3>
+                        <p class="text-xs text-gray-600 leading-relaxed">${rec.excerpt}</p>
+                    </div>
+                    <div class="pt-2 flex items-center justify-between gap-2 border-t border-gray-100">
+                        <span class="text-xs font-bold text-brandDark">Recept megnyitása →</span>
+                        ${rec.productIds ? `
+                            <button onclick="addRecipeToWishlist('${rec.productIds}', event)" class="bg-brandPeach hover:bg-brandPeachDark text-white font-bold text-[11px] px-3 py-1.5 rounded-xl shadow-2xs transition active:scale-95">
+                                🛒 Hozzávalók kosárba
+                            </button>
+                        ` : ''}
+                    </div>
+                </article>
+            `).join('');
+
+            document.getElementById('blog-list').innerHTML = blogPosts.map(post => `
+                <article onclick="openArticle('${post.slug}')" class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between space-y-3">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="bg-brandGreen/15 text-brandGreenDark text-[11px] font-bold px-2.5 py-0.5 rounded-full">${post.tag}</span>
+                            <span class="text-[11px] text-gray-400">${post.date}</span>
+                        </div>
+                        <h3 class="brand-title text-lg font-bold text-brandDark leading-snug">${post.title}</h3>
+                        <p class="text-xs text-gray-600 leading-relaxed">${post.excerpt}</p>
+                    </div>
+                    <span class="text-xs font-bold text-brandPeachDark pt-2 inline-block">Elolvasom a cikket →</span>
+                </article>
+            `).join('');
+        }
+
+        function openArticle(slug) {
+            const post = blogPosts.find(p => p.slug === slug);
+            if (!post) return;
+            document.getElementById('article-content').innerHTML = post.content;
+            openModal('article-modal');
+        }
+
+        function openRecipe(slug) {
+            const rec = recipes.find(r => r.slug === slug);
+            if (!rec) return;
+            const ids = (rec.productIds || '').split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+            const linkedProducts = products.filter(p => ids.includes(p.id));
+
+            document.getElementById('article-content').innerHTML = `
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="bg-brandGreen/15 text-brandGreenDark text-xs font-bold px-3 py-1 rounded-full">${rec.tag || '🌿 Mentes recept'}</span>
+                    <span class="text-xs text-gray-400 font-semibold">⏱️ Elkészítési idő: ${rec.prepTime || '15 perc'}</span>
+                </div>
+                <h2 class="brand-title text-2xl font-bold text-brandDark pt-1">${rec.title}</h2>
+                ${linkedProducts.length > 0 ? `
+                    <div class="bg-brandBg p-4 rounded-2xl border border-brandGreen/20 space-y-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-brandDark">🛒 Összehasonlított alapanyagok a recepthez:</span>
+                            <button onclick="addRecipeToWishlist('${rec.productIds}')" class="bg-brandPeach hover:bg-brandPeachDark text-white font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-xs transition">
+                                Mind kosárba (${linkedProducts.length} db)
+                            </button>
+                        </div>
+                        <ul class="text-xs text-gray-600 space-y-1">
+                            ${linkedProducts.map(lp => {
+                                const best = getProcessedOffers(lp)[0];
+                                return `<li>• <strong>${lp.name}</strong> – legjobb ár: <span class="text-brandGreenDark font-bold">${best.finalPrice.toLocaleString()} Ft (${best.store})</span></li>`;
+                            }).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+                ${formatMarkdown(rec.body)}
+            `;
+            openModal('article-modal');
+        }
+
+        function getProcessedOffers(product) {
+            return product.offers.map(offer => {
+                let finalPrice = offer.price;
+                let appliedCoupon = null;
+
+                if (rossmannDiscount && offer.isRossmann) {
+                    finalPrice = Math.round(offer.price * 0.85);
+                    appliedCoupon = "-15% Rossmannó";
+                } else if (dmDiscount && offer.isDm) {
+                    finalPrice = Math.round(offer.price * 0.90);
+                    appliedCoupon = "-10% dm pont";
+                }
+
+                let unitPrice = finalPrice / offer.qty;
+                let unitLabel = "";
+
+                if (product.unitType === 'db') {
+                    unitLabel = `${(Math.round(unitPrice * 10) / 10).toLocaleString()} Ft/db`;
+                } else if (product.unitType === 'kg') {
+                    unitLabel = `${Math.round(unitPrice).toLocaleString()} Ft/kg`;
+                } else {
+                    unitLabel = `${finalPrice.toLocaleString()} Ft`;
+                }
+
+                return { ...offer, finalPrice, unitPrice, unitLabel, appliedCoupon };
+            }).sort((a, b) => a.unitPrice - b.unitPrice);
+        }
+
+        function renderSubFilters() {
+            if (currentCat === 'pelenka') {
+                subFiltersEl.classList.remove('hidden');
+                subFiltersEl.classList.add('flex');
+                const sizes = ['1', '2', '3', '4', '5', '6'];
+                subFiltersEl.innerHTML = `
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="setSubFilter('all')" class="px-3 py-1 rounded-full text-xs font-bold ${currentSubFilter === 'all' ? 'bg-brandDark text-white' : 'bg-white border border-gray-200 text-gray-600'}">Minden méret</button>
+                        ${sizes.map(s => `
+                            <button onclick="setSubFilter('${s}')" class="px-3 py-1 rounded-full text-xs font-bold ${currentSubFilter === s ? 'bg-brandDark text-white' : 'bg-white border border-gray-200 text-gray-600'}">${s}-es méret</button>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (currentCat === 'mentes') {
+                subFiltersEl.classList.remove('hidden');
+                subFiltersEl.classList.add('flex');
+                subFiltersEl.innerHTML = `
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="setSubFilter('all')" class="px-3 py-1 rounded-full text-xs font-bold ${currentSubFilter === 'all' ? 'bg-brandDark text-white' : 'bg-white border border-gray-200 text-gray-600'}">Minden mentes</button>
+                        <button onclick="setSubFilter('tejmentes')" class="px-3 py-1 rounded-full text-xs font-bold ${currentSubFilter === 'tejmentes' ? 'bg-brandDark text-white' : 'bg-white border border-gray-200 text-gray-600'}">🥛 Tejmentes</button>
+                        <button onclick="setSubFilter('glutenmentes')" class="px-3 py-1 rounded-full text-xs font-bold ${currentSubFilter === 'glutenmentes' ? 'bg-brandDark text-white' : 'bg-white border border-gray-200 text-gray-600'}">🌾 Gluténmentes</button>
+                        <button onclick="setSubFilter('cukormentes')" class="px-3 py-1 rounded-full text-xs font-bold ${currentSubFilter === 'cukormentes' ? 'bg-brandDark text-white' : 'bg-white border border-gray-200 text-gray-600'}">🍬 Cukormentes</button>
+                    </div>
+                `;
+            } else if (currentCat === 'jatek') {
+                subFiltersEl.classList.remove('hidden');
+                subFiltersEl.classList.add('flex');
+                subFiltersEl.innerHTML = `
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="setSubFilter('all')" class="px-3 py-1 rounded-full text-xs font-bold ${currentSubFilter === 'all' ? 'bg-brandDark text-white' : 'bg-white border border-gray-200 text-gray-600'}">Minden korosztály</button>
+                        <button onclick="setSubFilter('0-1')" class="px-3 py-1 rounded-full text-xs font-bold ${currentSubFilter === '0-1' ? 'bg-brandDark text-white' : 'bg-white border border-gray-200 text-gray-600'}">👶 0–1 év</button>
+                        <button onclick="setSubFilter('1-3')" class="px-3 py-1 rounded-full text-xs font-bold ${currentSubFilter === '1-3' ? 'bg-brandDark text-white' : 'bg-white border border-gray-200 text-gray-600'}">🧸 1–3 év</button>
+                        <button onclick="setSubFilter('3+')" class="px-3 py-1 rounded-full text-xs font-bold ${currentSubFilter === '3+' ? 'bg-brandDark text-white' : 'bg-white border border-gray-200 text-gray-600'}">🚀 3+ év</button>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 pt-1">
+                        <span class="text-[11px] font-bold text-gray-400">🎁 Ajándék keret:</span>
+                        <button onclick="setPriceRange('all')" class="px-2.5 py-1 rounded-full text-[11px] font-bold ${currentPriceRange === 'all' ? 'bg-brandPeach text-white' : 'bg-white border border-gray-200 text-gray-600'}">Bármennyi</button>
+                        <button onclick="setPriceRange('under5k')" class="px-2.5 py-1 rounded-full text-[11px] font-bold ${currentPriceRange === 'under5k' ? 'bg-brandPeach text-white' : 'bg-white border border-gray-200 text-gray-600'}">5 000 Ft alatt</button>
+                        <button onclick="setPriceRange('5k-10k')" class="px-2.5 py-1 rounded-full text-[11px] font-bold ${currentPriceRange === '5k-10k' ? 'bg-brandPeach text-white' : 'bg-white border border-gray-200 text-gray-600'}">5 000 – 10 000 Ft</button>
+                        <button onclick="setPriceRange('over10k')" class="px-2.5 py-1 rounded-full text-[11px] font-bold ${currentPriceRange === 'over10k' ? 'bg-brandPeach text-white' : 'bg-white border border-gray-200 text-gray-600'}">10 000 Ft felett</button>
+                    </div>
+                `;
+            } else {
+                subFiltersEl.classList.add('hidden');
+                subFiltersEl.classList.remove('flex');
+            }
+        }
+
+        function renderProducts() {
+            const sortBy = document.getElementById('sort-select').value;
+
+            let filtered = products.filter(p => {
+                const matchCat = currentCat === 'all' || p.category === currentCat;
+                const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                    p.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+                const matchStore = selectedStore === 'all' || p.offers.some(o => o.store === selectedStore);
+                
+                let matchSub = true;
+                if (currentCat === 'pelenka' && currentSubFilter !== 'all') {
+                    matchSub = p.diaperSize === currentSubFilter;
+                }
+                if (currentCat === 'mentes' && currentSubFilter !== 'all') {
+                    matchSub = p.allergens && p.allergens.includes(currentSubFilter);
+                }
+                if (currentCat === 'jatek' && currentSubFilter !== 'all') {
+                    matchSub = p.ageGroup === currentSubFilter;
+                }
+
+                let matchPrice = true;
+                if (currentCat === 'jatek' && currentPriceRange !== 'all') {
+                    const bestPrice = getProcessedOffers(p)[0].finalPrice;
+                    if (currentPriceRange === 'under5k') matchPrice = bestPrice < 5000;
+                    else if (currentPriceRange === '5k-10k') matchPrice = bestPrice >= 5000 && bestPrice <= 10000;
+                    else if (currentPriceRange === 'over10k') matchPrice = bestPrice > 10000;
+                }
+
+                return matchCat && matchSearch && matchSub && matchStore && matchPrice;
+            });
+
+            let enriched = filtered.map(p => {
+                const sortedOffers = getProcessedOffers(p);
+                const maxPrice = Math.max(...sortedOffers.map(o => o.finalPrice));
+                const savings = maxPrice - sortedOffers[0].finalPrice;
+                return { ...p, sortedOffers, bestOffer: sortedOffers[0], savings };
+            });
+
+            if (sortBy === 'price-asc') {
+                enriched.sort((a, b) => a.bestOffer.finalPrice - b.bestOffer.finalPrice);
+            } else if (sortBy === 'savings-desc') {
+                enriched.sort((a, b) => b.savings - a.savings);
+            }
+
+            productCountEl.innerText = enriched.length;
+
+            if (enriched.length === 0) {
+                productListEl.innerHTML = `
+                    <div class="md:col-span-2 bg-white p-8 rounded-3xl text-center space-y-2 border border-gray-100">
+                        <span class="text-3xl">🔍</span>
+                        <p class="font-bold text-brandDark">Nincs pontos találat erre a szűrésre</p>
+                        <p class="text-xs text-gray-500">Próbálj meg más kulcsszót vagy árkeretet, esetleg kapcsold ki a szűrőket!</p>
+                        <button onclick="resetFilters()" class="mt-2 bg-brandGreen text-white text-xs font-bold px-4 py-2 rounded-full">Összes termék mutatása</button>
+                    </div>
+                `;
+                return;
+            }
+
+            productListEl.innerHTML = enriched.map(p => {
+                const best = p.bestOffer;
+                const isExpanded = expandedCards.has(p.id);
+                const isSaved = wishlist.has(p.id);
+
+                return `
+                <article class="${isExpanded ? 'md:col-span-2' : ''} bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden transition-all flex flex-col justify-between">
+                    <div onclick="toggleCard(${p.id})" class="p-4 cursor-pointer hover:bg-gray-50/50 transition flex-1 flex flex-col justify-between">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="space-y-1.5 flex-1">
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <span class="bg-brandGreen/15 text-brandGreenDark text-[10px] font-bold px-2.5 py-0.5 rounded-full">${p.badge}</span>
+                                    ${best.appliedCoupon ? `<span class="bg-brandPeach/20 text-brandPeachDark text-[10px] font-bold px-2 py-0.5 rounded-full">${best.appliedCoupon}</span>` : ''}
+                                </div>
+                                <h3 class="font-bold text-brandDark text-sm leading-snug">${p.name}</h3>
+                                <div class="flex flex-wrap gap-1">
+                                    ${p.tags.map(tag => `<span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md font-medium">${tag}</span>`).join('')}
+                                </div>
+                            </div>
+
+                            <div class="text-right shrink-0 bg-brandBg p-2.5 rounded-2xl border border-gray-100">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase block">${best.store}</span>
+                                <span class="text-base sm:text-lg font-extrabold text-brandDark block leading-tight">${best.finalPrice.toLocaleString()} Ft</span>
+                                ${p.unitType !== 'fix' ? `<span class="text-[11px] font-bold text-brandGreenDark block">${best.unitLabel}</span>` : ''}
+                                ${p.savings > 0 ? `<span class="text-[10px] font-bold text-brandPeachDark block mt-0.5">-${p.savings.toLocaleString()} Ft</span>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between mt-3 pt-2.5 border-t border-gray-100 text-xs gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-brandGreenDark flex items-center gap-1">
+                                    <span>${p.sortedOffers.length} bolt</span>
+                                    <span class="text-[10px]">${isExpanded ? '▲' : '▼'}</span>
+                                </span>
+                                <button onclick="toggleWishlist(${p.id}, event)" title="Mentés a bevásárlólistámra" class="px-2 py-1 rounded-lg text-xs font-bold transition ${isSaved ? 'bg-brandPeach/20 text-brandPeachDark' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}">
+                                    ${isSaved ? '✓ Listán' : '+ Listára'}
+                                </button>
+                            </div>
+                            <a href="${best.url}" onclick="event.stopPropagation()" class="bg-brandGreen hover:bg-brandGreenDark text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow-xs transition active:scale-95 shrink-0">
+                                ${best.store} →
+                            </a>
+                        </div>
+                    </div>
+
+                    ${isExpanded ? `
+                    <div class="bg-gray-50/80 px-4 py-3 border-t border-gray-100 space-y-2">
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Összes elérhető bolt (egységár szerint):</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        ${p.sortedOffers.map((offer, idx) => `
+                            <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border ${idx === 0 ? 'border-brandGreen/40 shadow-2xs' : 'border-gray-100'}">
+                                <div>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-bold text-xs text-brandDark">${offer.store}</span>
+                                        ${idx === 0 ? '<span class="bg-brandGreen text-white text-[9px] font-bold px-1.5 py-0.5 rounded">LEGOLCSÓBB</span>' : ''}
+                                        ${offer.appliedCoupon ? `<span class="text-[10px] font-bold text-brandPeachDark">(${offer.appliedCoupon})</span>` : ''}
+                                    </div>
+                                    <span class="text-[11px] text-gray-500">
+                                        ${p.unitType === 'db' ? `${offer.qty} db • ${offer.unitLabel}` : p.unitType === 'kg' ? `${offer.unitLabel}` : 'Készleten'}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="text-right">
+                                        ${offer.appliedCoupon ? `<span class="text-[10px] text-gray-400 line-through block">${offer.price.toLocaleString()} Ft</span>` : ''}
+                                        <span class="font-extrabold text-sm text-brandDark">${offer.finalPrice.toLocaleString()} Ft</span>
+                                    </div>
+                                    <a href="${offer.url}" class="bg-gray-100 hover:bg-brandPeach hover:text-white text-brandDark font-bold px-2.5 py-1.5 rounded-lg text-xs transition">
+                                        Megnézem
+                                    </a>
+                                </div>
+                            </div>
+                        `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                </article>
+                `;
+            }).join('');
+        }
+
+        function renderWishlistModal() {
+            const container = document.getElementById('wishlist-items');
+            const summary = document.getElementById('wishlist-summary');
+            const bundlesEl = document.getElementById('store-bundles');
+            const savedProducts = products.filter(p => wishlist.has(p.id));
+            document.getElementById('share-feedback').classList.add('hidden');
+
+            if (savedProducts.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">Még üres a bevásárlólistád. Kattints a termékeknél a <strong>„+ Listára”</strong> gombra!</p>`;
+                summary.classList.add('hidden');
+                return;
+            }
+
+            let totalBest = 0;
+            let totalSaved = 0;
+            const storeTotals = {};
+
+            container.innerHTML = savedProducts.map(p => {
+                const offers = getProcessedOffers(p);
+                const best = offers[0];
+                const max = Math.max(...offers.map(o => o.finalPrice));
+                totalBest += best.finalPrice;
+                totalSaved += (max - best.finalPrice);
+
+                offers.forEach(o => {
+                    if (!storeTotals[o.store]) storeTotals[o.store] = { sum: 0, count: 0 };
+                    storeTotals[o.store].sum += o.finalPrice;
+                    storeTotals[o.store].count += 1;
+                });
+
+                return `
+                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded-2xl border border-gray-100 text-xs">
+                        <div class="pr-2">
+                            <p class="font-bold text-brandDark leading-snug">${p.name}</p>
+                            <span class="text-[11px] text-brandGreenDark font-semibold">Legjobb: ${best.store} (${best.finalPrice.toLocaleString()} Ft)</span>
+                        </div>
+                        <button onclick="toggleWishlist(${p.id})" class="text-gray-400 hover:text-red-500 font-bold px-2 py-1">✕</button>
+                    </div>
+                `;
+            }).join('');
+
+            summary.classList.remove('hidden');
+            document.getElementById('wishlist-total').innerText = `${totalBest.toLocaleString()} Ft`;
+            document.getElementById('wishlist-saved').innerText = `${totalSaved.toLocaleString()} Ft`;
+
+            const storeList = Object.entries(storeTotals).sort((a, b) => b[1].count - a[1].count || a[1].sum - b[1].sum);
+            bundlesEl.innerHTML = `
+                <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider pt-1">🚚 Ingyenes szállítási küszöb boltonként:</p>
+                ${storeList.map(([store, data]) => {
+                    const threshold = freeShippingThresholds[store] || 15000;
+                    const missing = threshold - data.sum;
+                    const reached = missing <= 0;
+                    return `
+                        <div class="bg-gray-50 px-3 py-2 rounded-xl border border-gray-100 flex items-center justify-between text-[11px]">
+                            <div>
+                                <span class="font-bold text-brandDark">${store}</span>
+                                <span class="text-gray-400">(${data.count}/${savedProducts.length} termék elérhető)</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="font-bold text-brandDark block">${data.sum.toLocaleString()} Ft</span>
+                                <span class="font-bold ${reached ? 'text-brandGreenDark' : 'text-brandPeachDark'}">
+                                    ${reached ? '✓ Ingyenes szállítás!' : `Még ${missing.toLocaleString()} Ft az ingyeneshez`}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            `;
+        }
+
+        // BEVÁSÁRLÓLISTA MEGOSZTÁSA (WhatsApp / Messenger / Vágólap)
+        async function shareWishlist() {
+            const savedProducts = products.filter(p => wishlist.has(p.id));
+            if (savedProducts.length === 0) return;
+
+            let totalBest = 0;
+            const lines = savedProducts.map((p, i) => {
+                const best = getProcessedOffers(p)[0];
+                totalBest += best.finalPrice;
+                return `${i + 1}. ${p.name} – ${best.finalPrice.toLocaleString()} Ft (${best.store})`;
+            });
+
+            const shareText = `🛒 Babigo.hu bevásárlólistám:\n\n${lines.join('\n')}\n\n💰 Összesen a legolcsóbb boltokban: ${totalBest.toLocaleString()} Ft\n🔗 Összehasonlítva: https://babigo.hu`;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: 'Babigo.hu bevásárlólistám', text: shareText });
+                    return;
+                } catch (err) {
+                    // Ha megszakítja a natív megosztást, lemásoljuk vágólapra
+                }
+            }
+
+            try {
+                await navigator.clipboard.writeText(shareText);
+                document.getElementById('share-feedback').classList.remove('hidden');
+            } catch (e) {
+                alert(shareText);
+            }
+        }
+
+        // ESEMÉNYKEZELŐK
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchView('compare');
+                document.querySelectorAll('.cat-btn').forEach(b => {
+                    b.classList.remove('bg-brandGreen', 'text-white', 'shadow-sm');
+                    b.classList.add('bg-gray-100', 'text-gray-600');
+                });
+                btn.classList.remove('bg-gray-100', 'text-gray-600');
+                btn.classList.add('bg-brandGreen', 'text-white', 'shadow-sm');
+
+                currentCat = btn.dataset.cat;
+                currentSubFilter = 'all';
+                currentPriceRange = 'all';
+                renderSubFilters();
+                renderProducts();
+            });
+        });
+
+        function setSubFilter(sub) {
+            currentSubFilter = sub;
+            renderSubFilters();
+            renderProducts();
+        }
+
+        function setPriceRange(range) {
+            currentPriceRange = range;
+            renderSubFilters();
+            renderProducts();
+        }
+
+        function resetFilters() {
+            currentCat = 'all';
+            currentSubFilter = 'all';
+            currentPriceRange = 'all';
+            selectedStore = 'all';
+            searchQuery = '';
+            document.getElementById('search-input-desktop').value = '';
+            document.getElementById('search-input-mobile').value = '';
+            document.getElementById('store-filter').value = 'all';
+            document.querySelectorAll('.cat-btn')[0].click();
+        }
+
+        function toggleCard(id) {
+            if (expandedCards.has(id)) expandedCards.delete(id);
+            else expandedCards.add(id);
+            renderProducts();
+        }
+
+        function syncSearch(val) {
+            searchQuery = val;
+            document.getElementById('search-input-desktop').value = val;
+            document.getElementById('search-input-mobile').value = val;
+            switchView('compare');
+            renderProducts();
+        }
+        document.getElementById('search-input-desktop').addEventListener('input', e => syncSearch(e.target.value));
+        document.getElementById('search-input-mobile').addEventListener('input', e => syncSearch(e.target.value));
+
+        document.getElementById('store-filter').addEventListener('change', e => {
+            selectedStore = e.target.value;
+            renderProducts();
+        });
+
+        document.getElementById('sort-select').addEventListener('change', renderProducts);
+
+        document.getElementById('toggle-rossmann').addEventListener('change', e => {
+            rossmannDiscount = e.target.checked;
+            renderProducts();
+            renderWishlistModal();
+        });
+
+        document.getElementById('toggle-dm').addEventListener('change', e => {
+            dmDiscount = e.target.checked;
+            renderProducts();
+            renderWishlistModal();
+        });
+
+        function openModal(id) {
+            if (id === 'wishlist-modal') renderWishlistModal();
+            const el = document.getElementById(id);
+            el.classList.remove('hidden');
+            el.classList.add('flex');
+        }
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            el.classList.add('hidden');
+            el.classList.remove('flex');
+        }
+
+        const calcPrice = document.getElementById('calc-price');
+        const calcQty = document.getElementById('calc-qty');
+        const calcType = document.getElementById('calc-type');
+
+        function updateCalc() {
+            const p = parseFloat(calcPrice.value);
+            const q = parseFloat(calcQty.value);
+            const t = calcType.value;
+            document.getElementById('calc-qty-label').innerText = t === 'suly' ? 'Súly (gramm - g)' : 'Darabszám (db)';
+
+            const resBox = document.getElementById('calc-result');
+            if (!p || !q || p <= 0 || q <= 0) { resBox.classList.add('hidden'); return; }
+            resBox.classList.remove('hidden');
+
+            let unit = t === 'suly' ? p / (q / 1000) : p / q;
+            document.getElementById('calc-unit-val').innerText = t === 'suly' 
+                ? `${Math.round(unit).toLocaleString()} Ft / kg` 
+                : `${(Math.round(unit * 10) / 10).toLocaleString()} Ft / db`;
+
+            const verdict = document.getElementById('calc-verdict');
+            if ((t === 'pelenka' && unit < 75) || (t === 'popsitorlo' && unit < 8) || (t === 'suly' && unit < 4000)) {
+                verdict.innerText = "🔥 Kiváló ár!";
+                verdict.className = "inline-block text-xs font-bold px-3 py-1 rounded-full bg-green-100 text-green-800";
+            } else {
+                verdict.innerText = "👍 Átlagos piaci ár";
+                verdict.className = "inline-block text-xs font-bold px-3 py-1 rounded-full bg-blue-100 text-blue-800";
+            }
+        }
+        calcPrice.addEventListener('input', updateCalc);
+        calcQty.addEventListener('input', updateCalc);
+        calcType.addEventListener('change', updateCalc);
+
+        document.getElementById('newsletter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            this.classList.add('hidden');
+            document.getElementById('form-feedback').classList.remove('hidden');
+        });
+
+        checkCookieConsent();
+        saveWishlist();
+        renderProducts();
+        loadCmsContent();
+    </script>
+</body>
+</html>
