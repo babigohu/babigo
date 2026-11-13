@@ -12,6 +12,10 @@ content:
         label: Cikk címe
         type: string
         required: true
+      - name: image
+        label: Borítókép (opcionális, ajánlott WebP/JPG)
+        type: image
+        required: false
       - name: tag
         label: Kategória jelvény (pl. 👶 Pelenka útmutató)
         type: string
@@ -38,6 +42,10 @@ content:
         label: Recept neve
         type: string
         required: true
+      - name: image
+        label: Recept fotója (opcionális, ajánlott WebP/JPG)
+        type: image
+        required: false
       - name: tag
         label: Étrend jelvény (pl. 🌿 Tej- és tojásmentes)
         type: string
@@ -51,9 +59,31 @@ content:
         type: text
         required: true
       - name: productIds
-        label: Kapcsolódó termék ID-k vesszővel (pl. 4, 8)
-        type: string
-        required: true
+        label: Kapcsolódó termékek (válassz a listából)
+        type: select
+        options:
+          multiple: true
+          values:
+            - value: "4"
+              label: "Schär Glutén- és Tejmentes Babapiskóta (ID: 4)"
+            - value: "8"
+              label: "Hipp Bio Gyümölcspüré – Alma-Banán-Babakeksz (ID: 8)"
+            - value: "6"
+              label: "Nestlé BEBA OPTIPRO 3 Junior tápszer (ID: 6)"
+            - value: "1"
+              label: "Pampers Premium Care 4 Havi csomag (ID: 1)"
+            - value: "2"
+              label: "Libero Touch 4 Nyitott pelenka (ID: 2)"
+            - value: "9"
+              label: "Pampers Pants 5 Bugyipelenka (ID: 9)"
+            - value: "5"
+              label: "WaterWipes Popsitörlő 9x60 db (ID: 5)"
+            - value: "3"
+              label: "LEGO Duplo Számvonat (ID: 3)"
+            - value: "7"
+              label: "Fisher-Price Tanuló kutyus (ID: 7)"
+            - value: "10"
+              label: "Play-Doh Gyurmakészlet (ID: 10)"
       - name: body
         label: Hozzávalók és elkészítés
         type: rich-text
