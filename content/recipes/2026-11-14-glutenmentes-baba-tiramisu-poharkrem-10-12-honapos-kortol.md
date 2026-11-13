@@ -7,7 +7,8 @@ excerpt: Könnyed, sütés nélküli desszert a legkisebbeknek és az egész csa
   találkozik a bogyós gyümölcsök frissességével. A Schär gluténmentes
   babapiskóta pillanatok alatt selymesre puhul benne, így már 10-12 hónapos
   kortól biztonságos, tápláló és villámgyors finomság a babák tányérján.
-productIds: "4"
+productIds:
+  - "4"
 ---
 #### Hozzávalók (2 nagyobb vagy 3 kisebb adaghoz)
 
